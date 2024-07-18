@@ -8,16 +8,6 @@ from pygame import time
 
 class UI:
     def __init__(self, board_size: int):
-        self.board_size = board_size
-        assert 1 < self.board_size <= 26
-
-        self.clock = time.Clock()
-        self.hex_radius = 20
-        self.x_offset, self.y_offset = 60, 60
-        self.text_offset = 45
-        self.screen = pygame.display.set_mode(
-            (self.x_offset + (2 * self.hex_radius) * self.board_size + self.hex_radius * self.board_size,
-             round(self.y_offset + (1.75 * self.hex_radius) * self.board_size)))
 
         # Colors
         self.red = (222, 29, 47)
@@ -27,23 +17,40 @@ class UI:
         self.black = (40, 40, 40)
         self.gray = (70, 70, 70)
 
+
+        self.clock = time.Clock()
+        #set dimensions and draw the screen of the game 
+        self.board_size = board_size
+        assert 1 < self.board_size <= 26
+        self.hex_radius = 20
+        self.x_offset, self.y_offset = 60, 60
+        self.text_offset = 45
+        self.screen = pygame.display.set_mode(
+            (self.x_offset + (2 * self.hex_radius) * self.board_size + self.hex_radius * self.board_size,
+             round(self.y_offset + (1.75 * self.hex_radius) * self.board_size)))
+        
+        self.screen.fill(self.black)
+        self.fonts = pygame.font.SysFont("Sans", 20)
+
         # Players
         self.BLUE_PLAYER = 1
         self.RED_PLAYER = 2
 
-        self.screen.fill(self.black)
-        self.fonts = pygame.font.SysFont("Sans", 20)
-
+       
+        #self.rects : cells
+        #self.color : colors of the cells
+        #self.node : current played cell
         self.hex_lookup = {}
         self.rects, self.color, self.node = [], [self.white] * (self.board_size ** 2), None
+        
 
     def draw_hexagon(self, surface: object, color: tuple, position: tuple, node: int):
         # Vertex count and radius
-        n = 6
+        n = 6 #hexagone
         x, y = position
         offset = 3
 
-        # Outline
+        # Outline / jnab
         self.hex_lookup[node] = [(x + (self.hex_radius + offset) * cos(radians(90) + 2 * pi * _ / n),
                                   y + (self.hex_radius + offset) * sin(radians(90) + 2 * pi * _ / n))
                                  for _ in range(n)]
@@ -51,7 +58,7 @@ class UI:
                           self.hex_lookup[node],
                           color)
 
-        # Shape
+        # Shape /hexa shape
         gfxdraw.filled_polygon(surface,
                                [(x + self.hex_radius * cos(radians(90) + 2 * pi * _ / n),
                                  y + self.hex_radius * sin(radians(90) + 2 * pi * _ / n))
@@ -156,18 +163,18 @@ class UI:
 
         # Filled polygons gradient-coloured based on MCTS predictions
         # (i.e. normalized #visits per node)
-        if show_mcts_predictions:
-            try:
-                n = 6
-                for (row, column) in mcts_predictions.keys():
-                    x, y = self.get_coordinates(row, column)
-                    gfxdraw.filled_polygon(self.screen,
-                                           [(x + self.hex_radius * cos(radians(90) + 2 * pi * _ / n),
-                                             y + self.hex_radius * sin(radians(90) + 2 * pi * _ / n))
-                                            for _ in range(n)],
-                                           self.green + (mcts_predictions[(row, column)],))
-            except NameError:
-                pass
+        # if show_mcts_predictions:
+        #     try:
+        #         n = 6
+        #         for (row, column) in mcts_predictions.keys():
+        #             x, y = self.get_coordinates(row, column)
+        #             gfxdraw.filled_polygon(self.screen,
+        #                                    [(x + self.hex_radius * cos(radians(90) + 2 * pi * _ / n),
+        #                                      y + self.hex_radius * sin(radians(90) + 2 * pi * _ / n))
+        #                                     for _ in range(n)],
+        #                                    self.green + (mcts_predictions[(row, column)],))
+        #     except NameError:
+        #         pass
 
     def get_coordinates(self, row: int, column: int):
         x = self.x_offset + (2 * self.hex_radius) * column + self.hex_radius * row
@@ -178,6 +185,7 @@ class UI:
     def get_true_coordinates(self, node: int):
         return int(node / self.board_size), node % self.board_size
 
+    #get the node where the mouse is hovering
     def get_node_hover(self):
         # Source: https://bit.ly/2Wl5Grz
         mouse_pos = pygame.mouse.get_pos()
@@ -185,7 +193,7 @@ class UI:
             if rect.collidepoint(mouse_pos):
                 self.node = _
                 break
-
+                     
         if type(self.node) is int:
             # Node
             row, column = int(self.node / self.board_size), self.node % self.board_size

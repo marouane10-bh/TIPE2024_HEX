@@ -1,14 +1,14 @@
+import time, pygame
 from typing import Union
 
 import numpy as np
 
-from classes.mcts import MCTS
+from classes.mcts import MCTSPlayer
 
 
 class Logic:
-    def __init__(self, ui, itermax):
+    def __init__(self, ui):
         self.ui = ui
-        self.itermax = itermax
 
         self.GAME_OVER = False
         self.MCTS_GAME_OVER = False
@@ -19,6 +19,12 @@ class Logic:
         free_coordinates = [(i, j) for i, j in zip(x, y)]
 
         return free_coordinates
+    
+    def get_occ_moves(self, board: np.ndarray):
+        x, y = np.where(board == 1)
+        occ_coordinates = [(i, j) for i, j in zip(x, y)]
+
+        return occ_coordinates
 
     def make_move(self, coordinates: tuple, player: Union[int, None]):
         x, y = coordinates
@@ -28,17 +34,25 @@ class Logic:
             self.ui.color[node] = self.ui.green
         else:
             self.ui.color[node] = self.ui.blue if player is self.ui.BLUE_PLAYER else self.ui.red
+    
+    def is_over(self, board, mcts_mode):
+        if not self.get_possible_moves(board):
+            if not mcts_mode:
+                self.GAME_OVER = True
+            else:
+                self.MCTS_GAME_OVER = True
 
     def is_game_over(self, player: int, board: np.ndarray, mcts_mode: bool = False):
         """
         Sets GAME_OVER to True if there are no more moves to play.
         Returns the winning player.
         """
-        if not self.get_possible_moves(board):
-            if not mcts_mode:
-                self.GAME_OVER = True
-            else:
-                self.MCTS_GAME_OVER = True
+        # if not self.get_possible_moves(board):
+        #     if not mcts_mode:
+        #         self.GAME_OVER = True
+        #     else:
+        #         self.MCTS_GAME_OVER = True
+        self.is_over(board, mcts_mode)
 
         for _ in range(self.ui.board_size):
             if player is self.ui.BLUE_PLAYER:
@@ -52,7 +66,6 @@ class Logic:
                     # Highlights the winning path in green
                     for step in path.keys():
                         self.make_move(step, None)
-
                 return player
 
     def is_border(self, node: tuple, player: int):
@@ -113,25 +126,26 @@ class Logic:
 
         return True if not board[x][y] else False
 
-    def get_action(self, node: Union[int, None], player: int) -> int:
-        # Human player
-        if player is self.ui.BLUE_PLAYER:
-            x, y = self.ui.get_true_coordinates(node)
-            # Debug: random player
-            # x, y = choice(self.get_possible_moves(self.logger))
-            # self.mcts = MCTS(logic=self, ui=self.ui, board_state=self.logger, starting_player=self.ui.BLUE_PLAYER)
-            # x, y = self.mcts.start(itermax=self.itermax, verbose=False)
+    def get_action(self, node: Union[int, None], player) -> int:
+        # # Human player
+        # if player is self.ui.BLUE_PLAYER:
+        #     x, y = self.ui.get_true_coordinates(node)
+        #     # Debug: random player
+        #     # x, y = choice(self.get_possible_moves(self.logger))
+        #     # self.mcts = MCTS(logic=self, ui=self.ui, board_state=self.logger, starting_player=self.ui.BLUE_PLAYER)
+        #     # x, y = self.mcts.start(itermax=self.itermax, verbose=False)
 
-        # AI player
-        if player is self.ui.RED_PLAYER:
-            # Debug: random player
-            # x, y = choice(self.get_possible_moves(self.logger))
-            # MCTS player
-            self.mcts = MCTS(logic=self, ui=self.ui, board_state=self.logger, starting_player=self.ui.RED_PLAYER)
-            x, y = self.mcts.start(itermax=self.itermax, verbose=True, show_predictions=True)
-
+        # # AI player
+        # if player is self.ui.RED_PLAYER:
+        #     # Debug: random player
+        #     # x, y = choice(self.get_possible_moves(self.logger))
+        #     # MCTS player
+        #     self.mcts = MCTS(logic=self, ui=self.ui, board_state=self.logger, starting_player=self.ui.RED_PLAYER)
+        #     x, y = self.mcts.start(itermax=self.itermax, verbose=True, show_predictions=True)
+        selected_move= player.select_move(node)
+        print("the selected move", selected_move)
+        x,y = selected_move
         assert self.is_node_free((x, y), self.logger), "node is busy"
-        self.make_move((x, y), player)
-        self.logger[x][y] = player
-
-        return self.is_game_over(player, self.logger)
+        self.make_move((x, y), player.color)
+        self.logger[x][y] = player.color
+        return self.is_game_over(player.color, self.logger)
