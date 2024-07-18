@@ -1,1 +1,0 @@
-pyinstaller --console --onefile --icon="imgs/icon.ico" --name="Hex" main.py
