@@ -1,22 +1,5 @@
-# Hex
+# TIPE 2024 : Hex
 
->Hex is a strategy board game for two players played on a hexagonal grid, theoretically of any size and several possible shapes, but traditionally as an 11×11 rhombus. Players alternate placing markers or stones on unoccupied spaces in an attempt to link their opposite sides of the board in an unbroken chain. One player must win; there are no draws ([Wikipedia][wiki]).
+>Hex est un jeu de stratégie pour deux joueurs qui se joue sur une grille hexagonale, traditionnellement sur un losange de 11×11. Les joueurs placent alternativement des pions ou des pierres sur des espaces inoccupés dans le but de relier leurs côtés opposés du plateau par une chaîne ininterrompue. Un joueur doit obligatoirement gagner ; il n'y a pas de match nu
 
-![gui](https://github.com/alxdrcirilo/Hex/blob/master/imgs/gui.png)
 
-[wiki]: https://en.wikipedia.org/wiki/Hex_(board_game)
-
-## Installation
-
-No installation required.
-
-## Usage
-
-Simply run the executable file. Note that this was compiled for a machine running Windows.
-
-## Contributing
-
-Feedback and constructive criticism is welcome: [a.dias.cirilo@umail.leidenuniv.nl](mailto:[a.dias.cirilo@umail.leidenuniv.nl).
-
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
